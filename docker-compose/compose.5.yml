@@ -6,6 +6,53 @@
 #
 # Start from your compose.4.yml (copy it here). Then:
 #
+
+services:
+
+  web:
+    networks: [frontend, backend]
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    build: app
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+  adminer:
+    image: adminer
+    profiles: [ "tools" ]
+    ports:
+      - "8091:8080"
+    networks: [ backend ]
+
+  db:
+    networks: [backend]
+    image: postgres:16-alpine
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+
+volumes:
+  dbdata:
+
+networks:
+  frontend:
+  backend:
+
+
 # TODO 1: two networks, declared at the top level:
 #
 #   networks:

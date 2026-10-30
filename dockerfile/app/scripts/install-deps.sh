@@ -6,3 +6,4 @@ echo "installing dependencies..."
 sleep 2
 cat /proc/sys/kernel/random/uuid > deps-id
 echo "done"
+

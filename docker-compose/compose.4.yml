@@ -6,6 +6,40 @@
 #
 # Start from your compose.3.yml (copy it here). Then:
 #
+
+services:
+  web:
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    build: app
+    ports:
+      - "${WEB_PORT}:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+
+  db:
+
+    image: postgres:16-alpine
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+
+volumes:
+  dbdata:
+
 # TODO 1: a HEALTHCHECK for the db service: a command that Docker runs again and again. It says if the db is READY:
 #
 #       db:
