@@ -7,3 +7,22 @@
 #
 # The checker puts a big junk folder and a log file next to your files, builds the image, and
 # looks at how much data Docker had to send. If your .dockerignore is good, almost nothing is sent.
+
+
+  FROM eclipse-temurin:21-jdk
+  WORKDIR /app
+
+  EXPOSE 8080
+
+  ENV GREETING=Welcome
+  ARG APP_VERSION=1.0
+  LABEL org.opencontainers.image.title="hello-app"
+  LABEL version="$APP_VERSION"
+
+  COPY scripts/install-deps.sh .
+  RUN  sh install-deps.sh
+
+  COPY src/App.java .
+
+  CMD ["java", "App.java"]
+

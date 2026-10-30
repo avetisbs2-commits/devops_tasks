@@ -19,3 +19,21 @@
 #
 # The checker builds your image, changes src/App.java, builds again, and reads /app/deps-id.
 # If the number is the same, the slow step was NOT run again. That is what you want.
+
+  FROM eclipse-temurin:21-jdk
+  WORKDIR /app
+
+  EXPOSE 8080
+
+  ENV GREETING=Welcome
+  ARG APP_VERSION=1.0
+  LABEL org.opencontainers.image.title="hello-app"
+  LABEL version="$APP_VERSION"
+
+  COPY scripts/install-deps.sh .
+  RUN sh install-deps.sh
+
+  COPY src/App.java .
+
+  CMD ["java", "App.java"]
+
